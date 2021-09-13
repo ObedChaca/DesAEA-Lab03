@@ -29,12 +29,6 @@ namespace Lab03
                     List<Person> people = new List<Person>();
                     SqlCommand command = new SqlCommand("USP_GetPerson", conn);
                     command.CommandType = CommandType.StoredProcedure;
-                    SqlParameter parameter1 = new SqlParameter();
-                    parameter1.SqlDbType = SqlDbType.VarChar;
-                    parameter1.Size = 50;
-                    parameter1.Value = txtNombre.Text.Trim();
-                    parameter1.ParameterName = "@UsuarioName";
-                    command.Parameters.Add(parameter1);
                     SqlDataReader dataReader = command.ExecuteReader();
                     while (dataReader.Read())
                     {
@@ -47,6 +41,50 @@ namespace Lab03
                     conn.Close();
                     dgvListado.DataSource = people;
 
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ocurrió un error en el listado: \n" + ex.ToString());
+            }
+        }
+
+        private void btnBuscar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (conn.State == ConnectionState.Open)
+                {
+
+                    List<Person> people = new List<Person>();
+                    SqlCommand command = new SqlCommand("USP_SearchPerson", conn);
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    SqlParameter parameter1 = new SqlParameter();
+                    parameter1.SqlDbType = SqlDbType.VarChar;
+                    parameter1.Size = 50;
+                    parameter1.Value = txtNombre.Text.Trim();
+                    parameter1.ParameterName = "@UsuarioName";
+
+                    command.Parameters.Add(parameter1);
+
+                    SqlDataReader dataReader = command.ExecuteReader();
+                    while (dataReader.Read())
+                    {
+                        people.Add(new Person
+                        {
+                            Id = dataReader[0].ToString(),
+                            Name = dataReader[1].ToString()
+                        });
+                    }
+                    conn.Close();
+                    dgvListado.DataSource = people;
+                    dgvListado.Refresh();
+
+                }
+                else
+                {
+                    MessageBox.Show("La conexión está cerrada");
                 }
             }
             catch (Exception ex)
